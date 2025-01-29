@@ -21,12 +21,12 @@ public class Pokemon {
 
     private Integer niveau;
 
-    private Integer pv; // Points de vie du Pokémon
+    private Integer pv;
 
     @Enumerated(EnumType.STRING)
     private TypePokemon type;
 
-    private String faiblesse; // Faiblesse du Pokémon
+    private String faiblesse;
 
     private String attaque1;
 
