@@ -27,10 +27,12 @@ public class PokemonController {
         return new ResponseEntity<>(pokemonService.getAllPokemon(type), HttpStatus.OK);
     }
 
-    @PostMapping
-    public ResponseEntity<Pokemon> createPokemon(@RequestBody Pokemon pokemon) {
-        Pokemon createdPokemon = pokemonService.createPokemon(pokemon);
-        return new ResponseEntity<>(createdPokemon, HttpStatus.CREATED);
+    @PostMapping("/batch")
+    public ResponseEntity<List<Pokemon>> createMultiplePokemons(@RequestBody List<Pokemon> pokemons) {
+        List<Pokemon> createdPokemons = pokemons.stream()
+                .map(pokemonService::createPokemon)
+                .toList();
+        return new ResponseEntity<>(createdPokemons, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{uuid}")
