@@ -1,9 +1,12 @@
 package com.example.pokemon_tcg.controllers;
 
 import com.example.pokemon_tcg.models.Pokemon;
+import com.example.pokemon_tcg.services.IPokemonService;
+import com.example.pokemon_tcg.services.implementations.PokemonServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 
 @RestController
