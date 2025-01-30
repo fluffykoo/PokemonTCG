@@ -73,7 +73,6 @@ public class DresseurController {
             pokemon.setPv(generateRandomPv(random));
             pokemon.setRarete(generateRandomRarete(random));
             pokemonService.updatePokemon(pokemon);
-
             Carte carte = new Carte();
             carte.setPokemon(pokemon);
             carte.setDresseur(dresseur);
@@ -109,4 +108,55 @@ public class DresseurController {
         }
         return pv;
     }
+    @PostMapping("/battle")
+    public ResponseEntity<String> simulateBattle(@RequestBody List<String> carteUuids) {
+        System.out.println("🔥 Combat lancé avec Cartes UUIDs : " + carteUuids);
+
+        if (carteUuids.size() != 2) {
+            return new ResponseEntity<>("❌ Exactement deux Cartes UUIDs sont requises.", HttpStatus.BAD_REQUEST);
+        }
+
+
+        Carte carte1 = carteService.getCarteById(carteUuids.get(0));
+        Carte carte2 = carteService.getCarteById(carteUuids.get(1));
+
+        if (carte1 == null || carte2 == null) {
+            return new ResponseEntity<>("❌ L'une des cartes (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
+        }
+
+
+        Pokemon pokemon1 = carte1.getPokemon();
+        Pokemon pokemon2 = carte2.getPokemon();
+
+        if (pokemon1 == null || pokemon2 == null) {
+            return new ResponseEntity<>("❌ Une des cartes ne contient pas de Pokémon valide.", HttpStatus.BAD_REQUEST);
+        }
+
+        String result = battle(carte1, carte2);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+    private String battle(Carte carte1, Carte carte2) {
+        Pokemon pokemon1 = carte1.getPokemon();
+        Pokemon pokemon2 = carte2.getPokemon();
+
+        int score1 = calculateScore(pokemon1);
+        int score2 = calculateScore(pokemon2);
+
+        System.out.println("⚔️ Combat entre la carte de " + pokemon1.getNom() + " et celle de " + pokemon2.getNom());
+        System.out.println(pokemon1.getNom() + " (Carte " + carte1.getUuid() + ") : Score = " + score1);
+        System.out.println(pokemon2.getNom() + " (Carte " + carte2.getUuid() + ") : Score = " + score2);
+
+        if (score1 > score2) {
+            return "🏆 La carte de " + pokemon1.getNom() + " remporte la victoire ! (Score: " + score1 + " vs " + score2 + ")";
+        } else if (score2 > score1) {
+            return "🏆 La carte de " + pokemon2.getNom() + " remporte la victoire ! (Score: " + score1 + " vs " + score2 + ")";
+        } else {
+            return "⚖️ Match nul ! (Score: " + score1 + " vs " + score2 + ")";
+        }
+    }
+    private int calculateScore(Pokemon pokemon) {
+        int rarete = (pokemon.getRarete() != null) ? pokemon.getRarete() : 1; // Évite erreur si rareté = null
+        return pokemon.getNiveau() + pokemon.getPv() + (rarete * 10);
+    }
 }
+
