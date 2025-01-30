@@ -19,4 +19,7 @@ public class BattleRequestDTO {
 
     public String getCarte2() { return carte2; }
     public void setCarte2(String carte2) { this.carte2 = carte2; }
+
+
+
 }

@@ -114,65 +114,76 @@ public class DresseurController {
     }
 
 
-    @PostMapping("/battle")
-    public ResponseEntity<String> simulateBattle(@RequestBody BattleRequestDTO battleRequest) {
-        System.out.println("🔥 Combat lancé entre Dresseurs : " + battleRequest);
+//    @PostMapping("/battle")
+//    public ResponseEntity<String> simulateBattle(@RequestBody BattleRequestDTO battleRequest) {
+//        System.out.println("🔥 Combat lancé entre Dresseurs : " + battleRequest);
+//
+//
+//        if (battleRequest.getDresseur1() == null || battleRequest.getDresseur2() == null ||
+//                battleRequest.getCarte1() == null || battleRequest.getCarte2() == null) {
+//            return new ResponseEntity<>("❌ Vous devez fournir les UUIDs des deux Dresseurs et des deux Cartes.", HttpStatus.BAD_REQUEST);
+//        }
+//
+//
+//        Dresseur dresseur1 = dresseurService.getDresseurById(battleRequest.getDresseur1());
+//        Dresseur dresseur2 = dresseurService.getDresseurById(battleRequest.getDresseur2());
+//
+//        if (dresseur1 == null || dresseur2 == null) {
+//            return new ResponseEntity<>("❌ L'un des Dresseurs (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
+//        }
+//
+//
+//        Carte carte1 = carteService.getCarteById(battleRequest.getCarte1());
+//        Carte carte2 = carteService.getCarteById(battleRequest.getCarte2());
+//
+//        if (carte1 == null || carte2 == null) {
+//            return new ResponseEntity<>("❌ L'une des Cartes (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
+//        }
+//
+//
+//        if (!carte1.getDresseur().getUuid().equals(dresseur1.getUuid()) ||
+//                !carte2.getDresseur().getUuid().equals(dresseur2.getUuid())) {
+//            return new ResponseEntity<>("❌ Une carte ne correspond pas à son Dresseur.", HttpStatus.BAD_REQUEST);
+//        }
+//
+//
+//        String resultat = battle(carte1.getPokemon(), carte2.getPokemon(), dresseur1.getPrenom(), dresseur2.getPrenom());
+//        return new ResponseEntity<>(resultat, HttpStatus.OK);
+//    }
+//
+//    private String battle(Pokemon pokemon1, Pokemon pokemon2, String dresseur1, String dresseur2) {
+//        int score1 = calculateScore(pokemon1);
+//        int score2 = calculateScore(pokemon2);
+//
+//        System.out.println("⚔️ Combat entre " + dresseur1 + " (" + pokemon1.getNom() + ") et " + dresseur2 + " (" + pokemon2.getNom() + ")");
+//        System.out.println(pokemon1.getNom() + " : Score = " + score1);
+//        System.out.println(pokemon2.getNom() + " : Score = " + score2);
+//
+//        if (score1 > score2) {
+//            return "🏆 " + dresseur1 + " gagne avec " + pokemon1.getNom() + " ! (Score: " + score1 + " vs " + score2 + ")";
+//        } else if (score2 > score1) {
+//            return "🏆 " + dresseur2 + " gagne avec " + pokemon2.getNom() + " ! (Score: " + score1 + " vs " + score2 + ")";
+//        } else {
+//            return "⚖️ Match nul entre " + dresseur1 + " et " + dresseur2 + " ! (Score: " + score1 + " vs " + score2 + ")";
+//        }
+//    }
+//
+//    private int calculateScore(Pokemon pokemon) {
+//        int rarete = (pokemon.getRarete() != null) ? pokemon.getRarete() : 1;
+//        return pokemon.getNiveau() + pokemon.getPv() + (rarete * 10);
+//    }
+@PostMapping("/battle")
+public ResponseEntity<String> lancerCombat(@RequestBody BattleRequestDTO battleRequest) {
+    Dresseur dresseur1 = dresseurService.getDresseurById(battleRequest.getDresseur1());
+    Dresseur dresseur2 = dresseurService.getDresseurById(battleRequest.getDresseur2());
 
-
-        if (battleRequest.getDresseur1() == null || battleRequest.getDresseur2() == null ||
-                battleRequest.getCarte1() == null || battleRequest.getCarte2() == null) {
-            return new ResponseEntity<>("❌ Vous devez fournir les UUIDs des deux Dresseurs et des deux Cartes.", HttpStatus.BAD_REQUEST);
-        }
-
-
-        Dresseur dresseur1 = dresseurService.getDresseurById(battleRequest.getDresseur1());
-        Dresseur dresseur2 = dresseurService.getDresseurById(battleRequest.getDresseur2());
-
-        if (dresseur1 == null || dresseur2 == null) {
-            return new ResponseEntity<>("❌ L'un des Dresseurs (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
-        }
-
-        
-        Carte carte1 = carteService.getCarteById(battleRequest.getCarte1());
-        Carte carte2 = carteService.getCarteById(battleRequest.getCarte2());
-
-        if (carte1 == null || carte2 == null) {
-            return new ResponseEntity<>("❌ L'une des Cartes (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
-        }
-
-        
-        if (!carte1.getDresseur().getUuid().equals(dresseur1.getUuid()) ||
-                !carte2.getDresseur().getUuid().equals(dresseur2.getUuid())) {
-            return new ResponseEntity<>("❌ Une carte ne correspond pas à son Dresseur.", HttpStatus.BAD_REQUEST);
-        }
-
-        
-        String resultat = battle(carte1.getPokemon(), carte2.getPokemon(), dresseur1.getPrenom(), dresseur2.getPrenom());
-        return new ResponseEntity<>(resultat, HttpStatus.OK);
+    if (dresseur1 == null || dresseur2 == null) {
+        return new ResponseEntity<>("Dresseur introuvable.", HttpStatus.NOT_FOUND);
     }
 
-    private String battle(Pokemon pokemon1, Pokemon pokemon2, String dresseur1, String dresseur2) {
-        int score1 = calculateScore(pokemon1);
-        int score2 = calculateScore(pokemon2);
-
-        System.out.println("⚔️ Combat entre " + dresseur1 + " (" + pokemon1.getNom() + ") et " + dresseur2 + " (" + pokemon2.getNom() + ")");
-        System.out.println(pokemon1.getNom() + " : Score = " + score1);
-        System.out.println(pokemon2.getNom() + " : Score = " + score2);
-
-        if (score1 > score2) {
-            return "🏆 " + dresseur1 + " gagne avec " + pokemon1.getNom() + " ! (Score: " + score1 + " vs " + score2 + ")";
-        } else if (score2 > score1) {
-            return "🏆 " + dresseur2 + " gagne avec " + pokemon2.getNom() + " ! (Score: " + score1 + " vs " + score2 + ")";
-        } else {
-            return "⚖️ Match nul entre " + dresseur1 + " et " + dresseur2 + " ! (Score: " + score1 + " vs " + score2 + ")";
-        }
-    }
-
-    private int calculateScore(Pokemon pokemon) {
-        int rarete = (pokemon.getRarete() != null) ? pokemon.getRarete() : 1;
-        return pokemon.getNiveau() + pokemon.getPv() + (rarete * 10);
-    }
-
+    combatService.lancerCombatTerminal(dresseur1, dresseur2);
+    return new ResponseEntity<>("Combat terminé !", HttpStatus.OK);
+}
     @PostMapping("/battle-terminal")
     public ResponseEntity<String> simulateBattleInTerminal(@RequestBody BattleRequestDTO battleRequest) {
         System.out.println("🎮 Lancement du combat en mode terminal !");
