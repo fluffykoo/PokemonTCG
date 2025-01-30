@@ -16,28 +16,24 @@ public class ICombatService {
     public void lancerCombatTerminal(Dresseur dresseur1, Dresseur dresseur2) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("🔥 Combat entre " + dresseur1.getNom() + " et " + dresseur2.getNom() + " !");
-
+        System.out.println("🔥 Combat entre " + dresseur1.getPrenom() + " et " + dresseur2.getPrenom() + " !");
 
         afficherDeck(dresseur1);
         afficherDeck(dresseur2);
 
-
         Carte carte1 = choisirCarte(scanner, dresseur1);
         Carte carte2 = choisirCarte(scanner, dresseur2);
-
 
         String attaque1 = choisirAttaque(scanner, carte1);
         String attaque2 = choisirAttaque(scanner, carte2);
 
-
         System.out.println("\n⚔️ Début du combat !\n");
-        String resultat = battle(carte1.getPokemon(), carte2.getPokemon(), dresseur1.getNom(), dresseur2.getNom(), attaque1, attaque2);
+        String resultat = battle(carte1.getPokemon(), carte2.getPokemon(), dresseur1.getPrenom(), dresseur2.getPrenom(), attaque1, attaque2);
         System.out.println(resultat);
     }
 
     private void afficherDeck(Dresseur dresseur) {
-        System.out.println("\n🔹 Deck de " + dresseur.getNom() + " :");
+        System.out.println("\n🔹 Deck de " + dresseur.getPrenom() + " :");
         int i = 1;
         for (Carte carte : dresseur.getCarteList()) {
             System.out.println(i + ". " + carte.getPokemon().getNom() + " (Niveau: " + carte.getPokemon().getNiveau() + ")");
@@ -46,7 +42,7 @@ public class ICombatService {
     }
 
     private Carte choisirCarte(Scanner scanner, Dresseur dresseur) {
-        System.out.print("\n🎴 " + dresseur.getNom() + ", choisis une carte (1-" + dresseur.getCarteList().size() + "): ");
+        System.out.print("\n🎴 " + dresseur.getPrenom() + ", choisis une carte (1-" + dresseur.getCarteList().size() + "): ");
         int choix = scanner.nextInt() - 1;
         return dresseur.getCarteList().get(choix);
     }
