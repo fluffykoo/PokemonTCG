@@ -3,9 +3,12 @@ package com.example.pokemon_tcg.services;
 import com.example.pokemon_tcg.models.Carte;
 import com.example.pokemon_tcg.models.Dresseur;
 import com.example.pokemon_tcg.models.Pokemon;
+import com.example.pokemon_tcg.repositories.DresseurRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -13,6 +16,12 @@ import java.util.Scanner;
 public class ICombatService {
 
     private final Random random = new Random();
+    private final DresseurRepository dresseurRepository;
+
+    @Autowired
+    public ICombatService(DresseurRepository dresseurRepository) {
+        this.dresseurRepository = dresseurRepository;
+    }
 
     public void lancerCombatTerminal(Dresseur dresseur1, Dresseur dresseur2) {
         Scanner scanner = new Scanner(System.in);
@@ -45,6 +54,11 @@ public class ICombatService {
         } else {
             transfererMeilleureCarte(dresseur2, dresseur1);
         }
+
+        System.out.println("\n🔹 Mise à jour des decks de " + dresseur1.getPrenom() + " et " + dresseur2.getPrenom() + "...");
+        afficherDeck(dresseur1);
+        afficherDeck(dresseur2);
+
     }
 
     private void afficherDeck(Dresseur dresseur) {
@@ -111,7 +125,7 @@ public class ICombatService {
                 "💥 " + dresseurDefenseur + " (" + defenseur.getPokemon().getNom() + ") PV restants : " + defenseur.getPokemon().getPv());
 
         if (defenseur.getPokemon().getPv() == 0) {
-            System.out.println("💀 " + defenseur.getPokemon().getNom() + " est KO !");
+            System.out.println("🪦 " + defenseur.getPokemon().getNom() + " est KO !");
             System.out.println("🏆 " + dresseurAttaquant + " remporte la victoire avec " + attaquant.getPokemon().getNom() + " !");
         }
     }
@@ -122,16 +136,18 @@ public class ICombatService {
             return;
         }
 
-
         Carte meilleureCarte = perdant.getCarteList().stream()
                 .max(Comparator.comparingInt(c -> c.getPokemon().getNiveau() + c.getPokemon().getPv()))
                 .orElse(null);
 
         if (meilleureCarte != null) {
-
             perdant.getCarteList().remove(meilleureCarte);
+
             gagnant.getCarteList().add(meilleureCarte);
             meilleureCarte.setDresseur(gagnant);
+
+            dresseurRepository.save(perdant);
+            dresseurRepository.save(gagnant);
 
             System.out.println("\n📜 " + perdant.getPrenom() + " donne sa meilleure carte (" + meilleureCarte.getPokemon().getNom() + ") à " + gagnant.getPrenom() + " !");
         }

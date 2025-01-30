@@ -197,6 +197,6 @@ public ResponseEntity<String> lancerCombat(@RequestBody BattleRequestDTO battleR
 
         combatService.lancerCombatTerminal(dresseur1, dresseur2);
 
-        return new ResponseEntity<>("✅ Combat effectué avec succès !", HttpStatus.OK);
+        return new ResponseEntity<>("✅ Combat terminé !", HttpStatus.OK);
     }
 }
