@@ -1,5 +1,6 @@
 package com.example.pokemon_tcg.controllers;
 
+import com.example.pokemon_tcg.dto.BattleRequestDTO;
 import com.example.pokemon_tcg.models.Carte;
 import com.example.pokemon_tcg.models.Dresseur;
 import com.example.pokemon_tcg.models.Pokemon;
@@ -108,55 +109,64 @@ public class DresseurController {
         }
         return pv;
     }
-    @PostMapping("/battle")
-    public ResponseEntity<String> simulateBattle(@RequestBody List<String> carteUuids) {
-        System.out.println("🔥 Combat lancé avec Cartes UUIDs : " + carteUuids);
 
-        if (carteUuids.size() != 2) {
-            return new ResponseEntity<>("❌ Exactement deux Cartes UUIDs sont requises.", HttpStatus.BAD_REQUEST);
+
+    @PostMapping("/battle")
+    public ResponseEntity<String> simulateBattle(@RequestBody BattleRequestDTO battleRequest) {
+        System.out.println("🔥 Combat lancé entre Dresseurs : " + battleRequest);
+
+
+        if (battleRequest.getDresseur1() == null || battleRequest.getDresseur2() == null ||
+                battleRequest.getCarte1() == null || battleRequest.getCarte2() == null) {
+            return new ResponseEntity<>("❌ Vous devez fournir les UUIDs des deux Dresseurs et des deux Cartes.", HttpStatus.BAD_REQUEST);
         }
 
 
-        Carte carte1 = carteService.getCarteById(carteUuids.get(0));
-        Carte carte2 = carteService.getCarteById(carteUuids.get(1));
+        Dresseur dresseur1 = dresseurService.getDresseurById(battleRequest.getDresseur1());
+        Dresseur dresseur2 = dresseurService.getDresseurById(battleRequest.getDresseur2());
+
+        if (dresseur1 == null || dresseur2 == null) {
+            return new ResponseEntity<>("❌ L'un des Dresseurs (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
+        }
+
+        
+        Carte carte1 = carteService.getCarteById(battleRequest.getCarte1());
+        Carte carte2 = carteService.getCarteById(battleRequest.getCarte2());
 
         if (carte1 == null || carte2 == null) {
-            return new ResponseEntity<>("❌ L'une des cartes (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("❌ L'une des Cartes (ou les deux) est introuvable.", HttpStatus.NOT_FOUND);
         }
 
-
-        Pokemon pokemon1 = carte1.getPokemon();
-        Pokemon pokemon2 = carte2.getPokemon();
-
-        if (pokemon1 == null || pokemon2 == null) {
-            return new ResponseEntity<>("❌ Une des cartes ne contient pas de Pokémon valide.", HttpStatus.BAD_REQUEST);
+        
+        if (!carte1.getDresseur().getUuid().equals(dresseur1.getUuid()) ||
+                !carte2.getDresseur().getUuid().equals(dresseur2.getUuid())) {
+            return new ResponseEntity<>("❌ Une carte ne correspond pas à son Dresseur.", HttpStatus.BAD_REQUEST);
         }
 
-        String result = battle(carte1, carte2);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        
+        String resultat = battle(carte1.getPokemon(), carte2.getPokemon(), dresseur1.getPrenom(), dresseur2.getPrenom());
+        return new ResponseEntity<>(resultat, HttpStatus.OK);
     }
-    private String battle(Carte carte1, Carte carte2) {
-        Pokemon pokemon1 = carte1.getPokemon();
-        Pokemon pokemon2 = carte2.getPokemon();
 
+    private String battle(Pokemon pokemon1, Pokemon pokemon2, String dresseur1, String dresseur2) {
         int score1 = calculateScore(pokemon1);
         int score2 = calculateScore(pokemon2);
 
-        System.out.println("⚔️ Combat entre la carte de " + pokemon1.getNom() + " et celle de " + pokemon2.getNom());
-        System.out.println(pokemon1.getNom() + " (Carte " + carte1.getUuid() + ") : Score = " + score1);
-        System.out.println(pokemon2.getNom() + " (Carte " + carte2.getUuid() + ") : Score = " + score2);
+        System.out.println("⚔️ Combat entre " + dresseur1 + " (" + pokemon1.getNom() + ") et " + dresseur2 + " (" + pokemon2.getNom() + ")");
+        System.out.println(pokemon1.getNom() + " : Score = " + score1);
+        System.out.println(pokemon2.getNom() + " : Score = " + score2);
 
         if (score1 > score2) {
-            return "🏆 La carte de " + pokemon1.getNom() + " remporte la victoire ! (Score: " + score1 + " vs " + score2 + ")";
+            return "🏆 " + dresseur1 + " gagne avec " + pokemon1.getNom() + " ! (Score: " + score1 + " vs " + score2 + ")";
         } else if (score2 > score1) {
-            return "🏆 La carte de " + pokemon2.getNom() + " remporte la victoire ! (Score: " + score1 + " vs " + score2 + ")";
+            return "🏆 " + dresseur2 + " gagne avec " + pokemon2.getNom() + " ! (Score: " + score1 + " vs " + score2 + ")";
         } else {
-            return "⚖️ Match nul ! (Score: " + score1 + " vs " + score2 + ")";
+            return "⚖️ Match nul entre " + dresseur1 + " et " + dresseur2 + " ! (Score: " + score1 + " vs " + score2 + ")";
         }
     }
+
     private int calculateScore(Pokemon pokemon) {
-        int rarete = (pokemon.getRarete() != null) ? pokemon.getRarete() : 1; // Évite erreur si rareté = null
+        int rarete = (pokemon.getRarete() != null) ? pokemon.getRarete() : 1;
         return pokemon.getNiveau() + pokemon.getPv() + (rarete * 10);
     }
 }
-

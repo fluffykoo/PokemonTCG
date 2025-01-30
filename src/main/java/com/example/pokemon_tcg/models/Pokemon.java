@@ -121,4 +121,7 @@ public class Pokemon {
     public void setDresseur(Dresseur dresseur) {
         this.dresseur = dresseur;
     }
+
+    public void getPrenom() {
+    }
 }

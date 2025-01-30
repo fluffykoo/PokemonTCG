@@ -30,4 +30,5 @@ public class DresseurDTO {
     public List<String> getPokemonList() {
         return pokemonList;
     }
+
 }
