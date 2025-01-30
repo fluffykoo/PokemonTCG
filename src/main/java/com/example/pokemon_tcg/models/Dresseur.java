@@ -1,8 +1,8 @@
 package com.example.pokemon_tcg.models;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,8 +16,11 @@ public class Dresseur {
     private String prenom;
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "dresseur", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Pokemon> pokemonList = new ArrayList<>();
+    @OneToMany(mappedBy = "dresseur")
+    @JsonManagedReference
+    private List<Carte> carteList;
+
+    // Getters and setters
 
     public String getUuid() {
         return uuid;
@@ -51,16 +54,18 @@ public class Dresseur {
         this.deletedAt = deletedAt;
     }
 
-    public List<Pokemon> getPokemonList() {
-        return pokemonList;
+    public List<Carte> getCarteList() {
+        return carteList;
     }
 
-    public void setPokemonList(List<Pokemon> pokemonList) {
-        this.pokemonList = pokemonList;
+    public void setCarteList(List<Carte> carteList) {
+        this.carteList = carteList;
     }
 
     public void ajouterPokemon(Pokemon pokemon) {
-        pokemon.setDresseur(this);
-        this.pokemonList.add(pokemon);
+        Carte carte = new Carte();
+        carte.setPokemon(pokemon);
+        carte.setDresseur(this);
+        this.carteList.add(carte);
     }
 }

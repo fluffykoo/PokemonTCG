@@ -46,4 +46,13 @@ public class PokemonServiceImpl implements IPokemonService {
         }
         return false;
     }
+
+    @Override
+    public Pokemon updatePokemon(Pokemon pokemon) {
+        if (pokemonRepository.existsById(pokemon.getUuid())) {
+            return pokemonRepository.save(pokemon);
+        } else {
+            throw new RuntimeException("Pokemon not found");
+        }
+    }
 }

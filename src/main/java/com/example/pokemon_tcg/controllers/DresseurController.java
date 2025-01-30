@@ -1,13 +1,16 @@
 package com.example.pokemon_tcg.controllers;
 
+import com.example.pokemon_tcg.models.Carte;
 import com.example.pokemon_tcg.models.Dresseur;
 import com.example.pokemon_tcg.models.Pokemon;
+import com.example.pokemon_tcg.services.ICarteService;
 import com.example.pokemon_tcg.services.IDresseurService;
 import com.example.pokemon_tcg.services.IPokemonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -17,10 +20,12 @@ import java.util.Random;
 public class DresseurController {
     private final IDresseurService dresseurService;
     private final IPokemonService pokemonService;
+    private final ICarteService carteService;
 
-    public DresseurController(IDresseurService dresseurService, IPokemonService pokemonService) {
+    public DresseurController(IDresseurService dresseurService, IPokemonService pokemonService, ICarteService carteService) {
         this.dresseurService = dresseurService;
         this.pokemonService = pokemonService;
+        this.carteService = carteService;
     }
 
     @GetMapping
@@ -51,34 +56,42 @@ public class DresseurController {
     }
 
     @PostMapping("/{uuid}/claim")
-    public ResponseEntity<Dresseur> claimPokemons(@PathVariable String uuid) {
+    public ResponseEntity<Dresseur> claimCartes(@PathVariable String uuid) {
         Dresseur dresseur = dresseurService.getDresseurById(uuid);
-        if (dresseur.getPokemonList().size() >= 5) {
+        if (dresseur.getCarteList().size() >= 5) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         List<Pokemon> availablePokemons = pokemonService.getAllPokemon();
         Random random = new Random();
-        List<Pokemon> newPokemons = new ArrayList<>();
-        while (dresseur.getPokemonList().size() + newPokemons.size() < 5) {
+        List<Carte> newCartes = new ArrayList<>();
+        while (dresseur.getCarteList().size() + newCartes.size() < 5) {
             Pokemon pokemon = availablePokemons.get(random.nextInt(availablePokemons.size()));
+            if (carteService.findByPokemonId(pokemon.getUuid()) != null) {
+                continue;
+            }
             pokemon.setNiveau(generateRandomNiveau(random));
             pokemon.setPv(generateRandomPv(random));
             pokemon.setRarete(generateRandomRarete(random));
-            pokemon.setDresseur(dresseur);
-            newPokemons.add(pokemonService.createPokemon(pokemon));
+            pokemonService.updatePokemon(pokemon);
+
+            Carte carte = new Carte();
+            carte.setPokemon(pokemon);
+            carte.setDresseur(dresseur);
+            carte.setDateAjout(LocalDateTime.now());
+            newCartes.add(carteService.createCarte(carte));
         }
-        dresseur.getPokemonList().addAll(newPokemons);
+        dresseur.getCarteList().addAll(newCartes);
         Dresseur updatedDresseur = dresseurService.updateDresseur(uuid, dresseur);
         return new ResponseEntity<>(updatedDresseur, HttpStatus.OK);
     }
 
     private int generateRandomRarete(Random random) {
         int roll = random.nextInt(100) + 1;
-        if (roll <= 50) return 1; // 50% chance for 1 star
-        if (roll <= 80) return 2; // 30% chance for 2 stars
-        if (roll <= 95) return 3; // 15% chance for 3 stars
-        if (roll <= 99) return 4; // 4% chance for 4 stars
-        return 5; // 1% chance for 5 stars
+        if (roll <= 50) return 1;
+        if (roll <= 80) return 2;
+        if (roll <= 95) return 3;
+        if (roll <= 99) return 4;
+        return 5;
     }
 
     private int generateRandomNiveau(Random random) {

@@ -18,4 +18,6 @@ public interface IPokemonService {
 
     boolean deletePokemon(String uuid);
 
+    Pokemon updatePokemon(Pokemon pokemon);
+
 }
