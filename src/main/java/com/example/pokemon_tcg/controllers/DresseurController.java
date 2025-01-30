@@ -129,4 +129,10 @@ public class DresseurController {
 
         return new ResponseEntity<>("✅ Combat terminé !", HttpStatus.OK);
     }
+
+    @PostMapping("/exchange")
+    public String exchangeCard(@RequestParam String dresseurFromId, @RequestParam String dresseurToId, @RequestParam String carteId) {
+        boolean success = dresseurService.exchangeCard(dresseurFromId, dresseurToId, carteId);
+        return success ? "Exchange successful" : "Exchange failed";
+    }
 }
