@@ -25,11 +25,14 @@ public class Pokemon {
 
     private LocalDateTime dateAjout;
 
+    private Integer rarete; // New field for rarity
+
     @ManyToOne
     @JoinColumn(name = "dresseur_uuid")
     @JsonIgnore
     private Dresseur dresseur;
 
+    // Getters and setters
 
     public String getUuid() {
         return uuid;
@@ -101,6 +104,14 @@ public class Pokemon {
 
     public void setDateAjout(LocalDateTime dateAjout) {
         this.dateAjout = dateAjout;
+    }
+
+    public Integer getRarete() {
+        return rarete;
+    }
+
+    public void setRarete(Integer rarete) {
+        this.rarete = rarete;
     }
 
     public Dresseur getDresseur() {

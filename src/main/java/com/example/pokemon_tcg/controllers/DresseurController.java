@@ -63,12 +63,22 @@ public class DresseurController {
             Pokemon pokemon = availablePokemons.get(random.nextInt(availablePokemons.size()));
             pokemon.setNiveau(generateRandomNiveau(random));
             pokemon.setPv(generateRandomPv(random));
+            pokemon.setRarete(generateRandomRarete(random));
             pokemon.setDresseur(dresseur);
             newPokemons.add(pokemonService.createPokemon(pokemon));
         }
         dresseur.getPokemonList().addAll(newPokemons);
         Dresseur updatedDresseur = dresseurService.updateDresseur(uuid, dresseur);
         return new ResponseEntity<>(updatedDresseur, HttpStatus.OK);
+    }
+
+    private int generateRandomRarete(Random random) {
+        int roll = random.nextInt(100) + 1;
+        if (roll <= 50) return 1; // 50% chance for 1 star
+        if (roll <= 80) return 2; // 30% chance for 2 stars
+        if (roll <= 95) return 3; // 15% chance for 3 stars
+        if (roll <= 99) return 4; // 4% chance for 4 stars
+        return 5; // 1% chance for 5 stars
     }
 
     private int generateRandomNiveau(Random random) {
