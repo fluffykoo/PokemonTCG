@@ -10,6 +10,7 @@ import com.example.pokemon_tcg.services.IPokemonService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.pokemon_tcg.services.ICombatService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,11 +23,13 @@ public class DresseurController {
     private final IDresseurService dresseurService;
     private final IPokemonService pokemonService;
     private final ICarteService carteService;
+    private final ICombatService combatService;
 
-    public DresseurController(IDresseurService dresseurService, IPokemonService pokemonService, ICarteService carteService) {
+    public DresseurController(IDresseurService dresseurService, IPokemonService pokemonService, ICarteService carteService, ICombatService combatService) {
         this.dresseurService = dresseurService;
         this.pokemonService = pokemonService;
         this.carteService = carteService;
+        this.combatService = combatService;
     }
 
     @GetMapping
@@ -168,5 +171,21 @@ public class DresseurController {
     private int calculateScore(Pokemon pokemon) {
         int rarete = (pokemon.getRarete() != null) ? pokemon.getRarete() : 1;
         return pokemon.getNiveau() + pokemon.getPv() + (rarete * 10);
+    }
+
+    @PostMapping("/battle-terminal")
+    public ResponseEntity<String> simulateBattleInTerminal(@RequestBody BattleRequestDTO battleRequest) {
+        System.out.println("🎮 Lancement du combat en mode terminal !");
+
+        Dresseur dresseur1 = dresseurService.getDresseurById(battleRequest.getDresseur1());
+        Dresseur dresseur2 = dresseurService.getDresseurById(battleRequest.getDresseur2());
+
+        if (dresseur1 == null || dresseur2 == null) {
+            return new ResponseEntity<>("❌ L'un des Dresseurs est introuvable.", HttpStatus.NOT_FOUND);
+        }
+
+        combatService.lancerCombatTerminal(dresseur1, dresseur2);
+
+        return new ResponseEntity<>("✅ Combat effectué avec succès !", HttpStatus.OK);
     }
 }
