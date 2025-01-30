@@ -1,6 +1,7 @@
 package com.example.pokemon_tcg.controllers;
 
 import com.example.pokemon_tcg.dto.BattleRequestDTO;
+import com.example.pokemon_tcg.dto.EchangeDTO;
 import com.example.pokemon_tcg.models.Carte;
 import com.example.pokemon_tcg.models.Dresseur;
 import com.example.pokemon_tcg.models.Pokemon;
@@ -113,7 +114,6 @@ public class DresseurController {
         return pv;
     }
 
-
     @PostMapping("/battle")
     public ResponseEntity<String> simulateBattleInTerminal(@RequestBody BattleRequestDTO battleRequest) {
         System.out.println("🎮 Lancement du combat en mode terminal !");
@@ -131,8 +131,12 @@ public class DresseurController {
     }
 
     @PostMapping("/exchange")
-    public String exchangeCard(@RequestParam String dresseurFromId, @RequestParam String dresseurToId, @RequestParam String carteId) {
-        boolean success = dresseurService.exchangeCard(dresseurFromId, dresseurToId, carteId);
-        return success ? "Exchange successful" : "Exchange failed";
+    public ResponseEntity<String> exchangeCard(@RequestBody EchangeDTO echange) {
+        boolean success = dresseurService.exchangeCard(
+                echange.getDresseurFromId(),
+                echange.getDresseurToId(),
+                echange.getCarteId()
+        );
+        return success ? new ResponseEntity<>("Exchange successful", HttpStatus.OK) : new ResponseEntity<>("Exchange failed", HttpStatus.BAD_REQUEST);
     }
 }
