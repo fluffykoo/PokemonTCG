@@ -1,14 +1,8 @@
 package com.example.pokemon_tcg.models;
 
 import com.example.pokemon_tcg.constants.TypePokemon;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 public class Pokemon {
@@ -18,22 +12,25 @@ public class Pokemon {
     private String uuid;
 
     private String nom;
-
     private Integer niveau;
-
     private Integer pv;
 
     @Enumerated(EnumType.STRING)
     private TypePokemon type;
 
     private String faiblesse;
-
     private String attaque1;
-
     private String attaque2;
 
+    private LocalDateTime dateAjout; // Date à laquelle le Pokémon est attribué à un dresseur
+
     @ManyToOne
+    @JoinColumn(name = "dresseur_uuid") // Clé étrangère
     private Dresseur dresseur;
+
+    public String getUuid() {
+        return uuid;
+    }
 
     public String getNom() {
         return nom;
@@ -91,15 +88,19 @@ public class Pokemon {
         this.attaque2 = attaque2;
     }
 
-    public String getUuid() {
-        return uuid;
-    }
-
     public Dresseur getDresseur() {
         return dresseur;
     }
 
     public void setDresseur(Dresseur dresseur) {
         this.dresseur = dresseur;
+    }
+
+    public LocalDateTime getDateAjout() {
+        return dateAjout;
+    }
+
+    public void setDateAjout(LocalDateTime dateAjout) {
+        this.dateAjout = dateAjout;
     }
 }

@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class DresseurServiceImpl implements IDresseurService {
-
+class DresseurServiceImpl implements IDresseurService {
     @Autowired
     private DresseurRepository dresseurRepository;
 
@@ -23,8 +22,7 @@ public class DresseurServiceImpl implements IDresseurService {
 
     @Override
     public Dresseur getDresseurById(String uuid) {
-        return dresseurRepository.findById(uuid)
-                .orElseThrow(() -> new RuntimeException("Dresseur non trouvé"));
+        return dresseurRepository.findById(uuid).orElseThrow(() -> new RuntimeException("Dresseur non trouvé"));
     }
 
     @Override
@@ -37,10 +35,19 @@ public class DresseurServiceImpl implements IDresseurService {
         Optional<Dresseur> dresseurOpt = dresseurRepository.findById(uuid);
         if (dresseurOpt.isPresent()) {
             Dresseur dresseur = dresseurOpt.get();
-            dresseur.setDeletedAt(LocalDateTime.now());  // On ne supprime pas, on marque comme "supprimé"
+            dresseur.setDeletedAt(LocalDateTime.now());
             dresseurRepository.save(dresseur);
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Dresseur updateDresseur(String uuid, Dresseur dresseur) {
+        if (!dresseurRepository.existsById(uuid)) {
+            throw new RuntimeException("Dresseur non trouvé");
+        }
+        dresseur.setUuid(uuid);
+        return dresseurRepository.save(dresseur);
     }
 }
