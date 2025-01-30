@@ -14,4 +14,6 @@ public interface IDresseurService {
     boolean deleteDresseur(String uuid);
 
     Dresseur updateDresseur(String uuid, Dresseur dresseur);
+
+    boolean exchangeCard(String dresseurFromId, String dresseurToId, String carteId);
 }
