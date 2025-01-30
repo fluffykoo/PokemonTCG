@@ -3,6 +3,7 @@ package com.example.pokemon_tcg.models;
 import com.example.pokemon_tcg.constants.TypePokemon;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Pokemon {
@@ -22,14 +23,20 @@ public class Pokemon {
     private String attaque1;
     private String attaque2;
 
-    private LocalDateTime dateAjout; // Date à laquelle le Pokémon est attribué à un dresseur
+    private LocalDateTime dateAjout;
 
     @ManyToOne
-    @JoinColumn(name = "dresseur_uuid") // Clé étrangère
+    @JoinColumn(name = "dresseur_uuid")
+    @JsonIgnore
     private Dresseur dresseur;
+
 
     public String getUuid() {
         return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getNom() {
@@ -88,19 +95,19 @@ public class Pokemon {
         this.attaque2 = attaque2;
     }
 
-    public Dresseur getDresseur() {
-        return dresseur;
-    }
-
-    public void setDresseur(Dresseur dresseur) {
-        this.dresseur = dresseur;
-    }
-
     public LocalDateTime getDateAjout() {
         return dateAjout;
     }
 
     public void setDateAjout(LocalDateTime dateAjout) {
         this.dateAjout = dateAjout;
+    }
+
+    public Dresseur getDresseur() {
+        return dresseur;
+    }
+
+    public void setDresseur(Dresseur dresseur) {
+        this.dresseur = dresseur;
     }
 }

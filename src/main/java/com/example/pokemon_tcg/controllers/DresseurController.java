@@ -59,10 +59,11 @@ public class DresseurController {
         List<Pokemon> availablePokemons = pokemonService.getAllPokemon();
         Random random = new Random();
         List<Pokemon> newPokemons = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
+        while (dresseur.getPokemonList().size() + newPokemons.size() < 5) {
             Pokemon pokemon = availablePokemons.get(random.nextInt(availablePokemons.size()));
             pokemon.setNiveau(generateRandomNiveau(random));
             pokemon.setPv(generateRandomPv(random));
+            pokemon.setDresseur(dresseur);
             newPokemons.add(pokemonService.createPokemon(pokemon));
         }
         dresseur.getPokemonList().addAll(newPokemons);
