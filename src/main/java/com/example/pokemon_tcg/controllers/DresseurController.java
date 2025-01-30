@@ -173,6 +173,14 @@ public class DresseurController {
         return pokemon.getNiveau() + pokemon.getPv() + (rarete * 10);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
+        if (dresseurService.authenticateDresseur(username, password)) {
+            return new ResponseEntity<>("✅ Authentification réussie", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("❌ Identifiants incorrects", HttpStatus.UNAUTHORIZED);
+    }
+
     @PostMapping("/battle-terminal")
     public ResponseEntity<String> simulateBattleInTerminal(@RequestBody BattleRequestDTO battleRequest) {
         System.out.println("🎮 Lancement du combat en mode terminal !");

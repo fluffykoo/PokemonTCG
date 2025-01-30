@@ -4,6 +4,7 @@ import com.example.pokemon_tcg.models.Dresseur;
 import com.example.pokemon_tcg.repositories.DresseurRepository;
 import com.example.pokemon_tcg.services.IDresseurService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,21 @@ import java.util.Optional;
 class DresseurServiceImpl implements IDresseurService {
     @Autowired
     private DresseurRepository dresseurRepository;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+
+    @Override
+    public Dresseur getDresseurByUsername(String username) {
+        return dresseurRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Dresseur non trouvé"));
+    }
+
+    @Override
+    public boolean authenticateDresseur(String username, String password) {
+        Dresseur dresseur = getDresseurByUsername(username);
+        return passwordEncoder.matches(password, dresseur.getPassword()); // Vérification du mot de passe
+    }
 
     @Override
     public List<Dresseur> getAllDresseurs() {
@@ -27,8 +43,10 @@ class DresseurServiceImpl implements IDresseurService {
 
     @Override
     public Dresseur createDresseur(Dresseur dresseur) {
+        dresseur.setPassword(passwordEncoder.encode(dresseur.getPassword())); // Hashage du mot de passe
         return dresseurRepository.save(dresseur);
     }
+
 
     @Override
     public boolean deleteDresseur(String uuid) {

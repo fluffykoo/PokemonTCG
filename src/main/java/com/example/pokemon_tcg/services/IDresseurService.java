@@ -14,4 +14,8 @@ public interface IDresseurService {
     boolean deleteDresseur(String uuid);
 
     Dresseur updateDresseur(String uuid, Dresseur dresseur);
+
+    Dresseur getDresseurByUsername(String username);
+
+    boolean authenticateDresseur(String username, String password);
 }

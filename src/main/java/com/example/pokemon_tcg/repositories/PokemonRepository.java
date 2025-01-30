@@ -11,4 +11,5 @@ import java.util.List;
 public interface PokemonRepository extends JpaRepository<Pokemon, String> {
 
     List<Pokemon> findAllByType(TypePokemon type);
+
 }

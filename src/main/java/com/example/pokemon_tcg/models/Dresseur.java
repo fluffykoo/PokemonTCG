@@ -14,6 +14,8 @@ public class Dresseur {
 
     private String nom;
     private String prenom;
+    private String username;  
+    private String password;
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "dresseur")
@@ -46,6 +48,22 @@ public class Dresseur {
         this.prenom = prenom;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public LocalDateTime getDeletedAt() {
         return deletedAt;
     }
@@ -60,12 +78,5 @@ public class Dresseur {
 
     public void setCarteList(List<Carte> carteList) {
         this.carteList = carteList;
-    }
-
-    public void ajouterPokemon(Pokemon pokemon) {
-        Carte carte = new Carte();
-        carte.setPokemon(pokemon);
-        carte.setDresseur(this);
-        this.carteList.add(carte);
     }
 }
