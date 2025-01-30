@@ -26,10 +26,12 @@ public class ICombatService {
     public void lancerCombatTerminal(Dresseur dresseur1, Dresseur dresseur2) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("\n🔥 Combat entre " + dresseur1.getPrenom() + " et " + dresseur2.getPrenom() + " !");
-
         afficherDeck(dresseur1);
+        soignerPokemonSiKO(dresseur1, scanner);
         afficherDeck(dresseur2);
+        soignerPokemonSiKO(dresseur2, scanner);
+
+        System.out.println("\n🔥 Combat entre " + dresseur1.getPrenom() + " et " + dresseur2.getPrenom() + " !");
 
         Carte carte1 = choisirCarte(scanner, dresseur1);
         Carte carte2 = choisirCarte(scanner, dresseur2);
@@ -55,14 +57,13 @@ public class ICombatService {
             transfererMeilleureCarte(dresseur2, dresseur1);
         }
 
-        System.out.println("\n🔹 Mise à jour des decks de " + dresseur1.getPrenom() + " et " + dresseur2.getPrenom() + "...");
+
         afficherDeck(dresseur1);
         afficherDeck(dresseur2);
-
     }
 
     private void afficherDeck(Dresseur dresseur) {
-        System.out.println("\n🔹 Deck de " + dresseur.getPrenom() + " :");
+        System.out.println("\n💡 Deck de " + dresseur.getPrenom() + " :");
         int i = 1;
         for (Carte carte : dresseur.getCarteList()) {
             System.out.println(i + ". " + carte.getPokemon().getNom() +
@@ -71,6 +72,34 @@ public class ICombatService {
             i++;
         }
     }
+
+    private void soignerPokemonSiKO(Dresseur dresseur, Scanner scanner) {
+        boolean pokemonKO = dresseur.getCarteList().stream().anyMatch(carte -> carte.getPokemon().getPv() == 0);
+
+        if (pokemonKO) {
+            System.out.println("\n💉 " + dresseur.getPrenom() + ", un de tes Pokémon est KO. Veux-tu soigner l'un de tes Pokémon ?");
+            System.out.print("Si oui, choisis un Pokémon (1-" + dresseur.getCarteList().size() + "), sinon tape 0 pour ignorer : ");
+            int choix = scanner.nextInt();
+            scanner.nextLine();
+
+            if (choix >= 1 && choix <= dresseur.getCarteList().size()) {
+                Carte carteChoisie = dresseur.getCarteList().get(choix - 1);
+                if (carteChoisie.getPokemon().getPv() == 0) {
+                    Integer pvMax = carteChoisie.getPokemon().getPvMax();
+                    if (pvMax == null) {
+                        pvMax = 200;
+                    }
+                    carteChoisie.getPokemon().setPv(Math.min(carteChoisie.getPokemon().getPv() + 30, pvMax));
+                    System.out.println("\n🎉 " + dresseur.getPrenom() + " soigne " + carteChoisie.getPokemon().getNom() + " de 30 PV !");
+                } else {
+                    System.out.println("❌ Ce Pokémon n'est pas KO.");
+                }
+            } else if (choix != 0) {
+                System.out.println("❌ Choix invalide. Aucun Pokémon soigné.");
+            }
+        }
+    }
+
 
     private Carte choisirCarte(Scanner scanner, Dresseur dresseur) {
         Carte carteChoisie = null;
@@ -157,4 +186,6 @@ public class ICombatService {
         int baseDamage = random.nextInt(20) + 10;
         return (int) (baseDamage * efficacite);
     }
+
+
 }

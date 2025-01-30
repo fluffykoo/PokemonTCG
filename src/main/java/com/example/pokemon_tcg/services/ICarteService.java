@@ -9,5 +9,5 @@ public interface ICarteService {
     Carte getCarteById(String uuid);
     Carte updateCarte(Carte carte);
     boolean deleteCarte(String uuid);
-    Carte findByPokemonId(String pokemonId); // Add this method
+    Carte findByPokemonId(String pokemonId);
 }

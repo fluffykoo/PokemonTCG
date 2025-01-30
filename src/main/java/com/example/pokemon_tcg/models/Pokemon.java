@@ -15,6 +15,7 @@ public class Pokemon {
     private String nom;
     private Integer niveau;
     private Integer pv;
+    private Integer pvMax = 200;
 
     @Enumerated(EnumType.STRING)
     private TypePokemon type;
@@ -25,14 +26,14 @@ public class Pokemon {
 
     private LocalDateTime dateAjout;
 
-    private Integer rarete; // New field for rarity
+    private Integer rarete;
 
     @ManyToOne
     @JoinColumn(name = "dresseur_uuid")
     @JsonIgnore
     private Dresseur dresseur;
 
-    // Getters and setters
+
 
     public String getUuid() {
         return uuid;
@@ -64,6 +65,14 @@ public class Pokemon {
 
     public void setPv(Integer pv) {
         this.pv = pv;
+    }
+
+    public Integer getPvMax() {
+        return pvMax;
+    }
+
+    public void setPvMax(Integer pvMax) {
+        this.pvMax = pvMax;
     }
 
     public TypePokemon getType() {
