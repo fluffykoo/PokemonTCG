@@ -75,7 +75,13 @@ public class ICombatService {
     }
 
     private void soignerPokemonSiKO(Dresseur dresseur, Scanner scanner) {
-        boolean pokemonKO = dresseur.getCarteList().stream().anyMatch(carte -> carte.getPokemon().getPv() == 0);
+        boolean pokemonKO = false;
+        for (Carte carte : dresseur.getCarteList()) {
+            if (carte.getPokemon().getPv() == 0) {
+                pokemonKO = true;
+                break;
+            }
+        }
 
         if (pokemonKO) {
             System.out.println("\n💉 " + dresseur.getPrenom() + ", un de tes Pokémon est KO. Veux-tu soigner l'un de tes Pokémon ?");
@@ -91,7 +97,7 @@ public class ICombatService {
                         pvMax = 200;
                     }
                     carteChoisie.getPokemon().setPv(Math.min(carteChoisie.getPokemon().getPv() + 30, pvMax));
-                    System.out.println("\n🎉 " + dresseur.getPrenom() + " soigne " + carteChoisie.getPokemon().getNom() + " de 30 PV !");
+                    System.out.println("\n🎉" + carteChoisie.getPokemon().getNom() + " récupère 30 PV !");
                 } else {
                     System.out.println("❌ Ce Pokémon n'est pas KO.");
                 }
@@ -123,7 +129,7 @@ public class ICombatService {
         dresseur2.getCarteList().add(carteDresseur1);
         dresseurRepository.save(dresseur1);
         dresseurRepository.save(dresseur2);
-        System.out.println("\n✅ Échange réussi : " + dresseur1.getPrenom() + " a échangé " + carteDresseur1.getPokemon().getNom() + " avec " + dresseur2.getPrenom() + " pour " + carteDresseur2.getPokemon().getNom());
+        System.out.println("\n✅ Échange réussi : " + dresseur1.getPrenom() + " a échangé " + carteDresseur1.getPokemon().getNom() + " contre " + carteDresseur2.getPokemon().getNom() + " de " +dresseur2.getPrenom());
         afficherDeck(dresseur1);
         afficherDeck(dresseur2);
     }
