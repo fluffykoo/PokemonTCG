@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -26,9 +27,9 @@ public class ICombatService {
         Scanner scanner = new Scanner(System.in);
 
         afficherDeck(dresseur1);
-        soignerPokemonSiKO(scanner, dresseur1);
+        soignerPokemonSiKO(dresseur1, scanner);
         afficherDeck(dresseur2);
-        soignerPokemonSiKO(scanner, dresseur2);
+        soignerPokemonSiKO(dresseur2, scanner);
 
         System.out.println("\n🔥 Combat entre " + dresseur1.getPrenom() + " et " + dresseur2.getPrenom() + " !");
 
@@ -42,8 +43,10 @@ public class ICombatService {
         while (carte1.getPokemon().getPv() > 0 && carte2.getPokemon().getPv() > 0) {
             if (tourDresseur1) {
                 executerAttaque(scanner, carte1, carte2, dresseur1.getPrenom(), dresseur2.getPrenom());
+                if (carte2.getPokemon().getPv() <= 0) break;
             } else {
                 executerAttaque(scanner, carte2, carte1, dresseur2.getPrenom(), dresseur1.getPrenom());
+                if (carte1.getPokemon().getPv() <= 0) break;
             }
             tourDresseur1 = !tourDresseur1;
         }
@@ -54,72 +57,6 @@ public class ICombatService {
             transfererMeilleureCarte(dresseur2, dresseur1);
         }
 
-        afficherDeck(dresseur1);
-        afficherDeck(dresseur2);
-
-        proposerEchange(scanner, dresseur1, dresseur2);
-    }
-
-    private void soignerPokemonSiKO(Scanner scanner, Dresseur dresseur) {
-        boolean pokemonKO = dresseur.getCarteList().stream().anyMatch(carte -> carte.getPokemon().getPv() == 0);
-
-        if (pokemonKO) {
-            System.out.println("\n🏥 " + dresseur.getPrenom() + ", un de tes Pokémon est KO. Veux-tu le soigner ?");
-            System.out.print("Si oui, choisis un Pokémon (1-" + dresseur.getCarteList().size() + "), sinon tape 0 pour ignorer : ");
-
-            while (!scanner.hasNextInt()) {
-                scanner.next();
-                System.out.print("❌ Entrée invalide. Réessaie : ");
-            }
-            int choix = scanner.nextInt();
-            scanner.nextLine();
-
-            if (choix >= 1 && choix <= dresseur.getCarteList().size()) {
-                Carte carteChoisie = dresseur.getCarteList().get(choix - 1);
-                if (carteChoisie.getPokemon().getPv() == 0) {
-                    int pvMax = 100;
-                    carteChoisie.getPokemon().setPv(pvMax);
-                    System.out.println("\n🎉 " + dresseur.getPrenom() + " soigne " + carteChoisie.getPokemon().getNom() + " à " + pvMax + " PV !");
-                } else {
-                    System.out.println("❌ Ce Pokémon n'est pas KO.");
-                }
-            }
-        }
-    }
-
-    private void proposerEchange(Scanner scanner, Dresseur dresseur1, Dresseur dresseur2) {
-        System.out.println("\n🔄 Voulez-vous échanger une carte ? (oui/non)");
-        String reponse = scanner.nextLine().trim().toLowerCase();
-
-        if (!reponse.equals("oui")) {
-            System.out.println("❌ Pas d'échange. Fin du combat !");
-            return;
-        }
-
-        System.out.println(dresseur1.getPrenom() + ", choisis une carte à échanger :");
-        Carte carteDresseur1 = choisirCarte(scanner, dresseur1);
-
-        System.out.println(dresseur2.getPrenom() + ", choisis une carte à échanger :");
-        Carte carteDresseur2 = choisirCarte(scanner, dresseur2);
-
-        effectuerEchange(dresseur1, dresseur2, carteDresseur1, carteDresseur2);
-    }
-
-    private void effectuerEchange(Dresseur dresseur1, Dresseur dresseur2, Carte carteDresseur1, Carte carteDresseur2) {
-        dresseur1.getCarteList().remove(carteDresseur1);
-        dresseur2.getCarteList().remove(carteDresseur2);
-
-        carteDresseur1.setDresseur(dresseur2);
-        carteDresseur2.setDresseur(dresseur1);
-
-        dresseur1.getCarteList().add(carteDresseur2);
-        dresseur2.getCarteList().add(carteDresseur1);
-
-        dresseurRepository.save(dresseur1);
-        dresseurRepository.save(dresseur2);
-
-        System.out.println("\n✅ Échange réussi : " + dresseur1.getPrenom() + " a échangé " + carteDresseur1.getPokemon().getNom() +
-                " avec " + dresseur2.getPrenom() + " pour " + carteDresseur2.getPokemon().getNom());
 
         afficherDeck(dresseur1);
         afficherDeck(dresseur2);
@@ -136,11 +73,47 @@ public class ICombatService {
         }
     }
 
+    private void soignerPokemonSiKO(Dresseur dresseur, Scanner scanner) {
+        boolean pokemonKO = dresseur.getCarteList().stream().anyMatch(carte -> carte.getPokemon().getPv() == 0);
+
+        if (pokemonKO) {
+            System.out.println("\n💉 " + dresseur.getPrenom() + ", un de tes Pokémon est KO. Veux-tu soigner l'un de tes Pokémon ?");
+            System.out.print("Si oui, choisis un Pokémon (1-" + dresseur.getCarteList().size() + "), sinon tape 0 pour ignorer : ");
+            int choix = scanner.nextInt();
+            scanner.nextLine();
+
+            if (choix >= 1 && choix <= dresseur.getCarteList().size()) {
+                Carte carteChoisie = dresseur.getCarteList().get(choix - 1);
+                if (carteChoisie.getPokemon().getPv() == 0) {
+                    Integer pvMax = carteChoisie.getPokemon().getPvMax();
+                    if (pvMax == null) {
+                        pvMax = 200;
+                    }
+                    carteChoisie.getPokemon().setPv(Math.min(carteChoisie.getPokemon().getPv() + 30, pvMax));
+                    System.out.println("\n🎉 " + dresseur.getPrenom() + " soigne " + carteChoisie.getPokemon().getNom() + " de 30 PV !");
+                } else {
+                    System.out.println("❌ Ce Pokémon n'est pas KO.");
+                }
+            } else if (choix != 0) {
+                System.out.println("❌ Choix invalide. Aucun Pokémon soigné.");
+            }
+        }
+    }
+
+
     private Carte choisirCarte(Scanner scanner, Dresseur dresseur) {
-        System.out.print("\n🎴 " + dresseur.getPrenom() + ", choisis une carte (1-" + dresseur.getCarteList().size() + "): ");
-        int choix = scanner.nextInt();
-        scanner.nextLine();
-        return dresseur.getCarteList().get(choix - 1);
+        Carte carteChoisie = null;
+        while (carteChoisie == null) {
+            System.out.print("\n🎴 " + dresseur.getPrenom() + ", choisis une carte (1-" + dresseur.getCarteList().size() + "): ");
+            int choix = scanner.nextInt();
+            scanner.nextLine();
+            if (choix >= 1 && choix <= dresseur.getCarteList().size()) {
+                carteChoisie = dresseur.getCarteList().get(choix - 1);
+            } else {
+                System.out.println("❌ Choix invalide. Réessaie !");
+            }
+        }
+        return carteChoisie;
     }
 
     private String choisirAttaque(Scanner scanner, Carte carte) {
@@ -185,6 +158,7 @@ public class ICombatService {
             System.out.println("🏆 " + dresseurAttaquant + " remporte la victoire avec " + attaquant.getPokemon().getNom() + " !");
         }
     }
+
     private void transfererMeilleureCarte(Dresseur perdant, Dresseur gagnant) {
         if (perdant.getCarteList().isEmpty()) {
             System.out.println("❌ " + perdant.getPrenom() + " n'a plus de cartes à donner.");
@@ -197,6 +171,7 @@ public class ICombatService {
 
         if (meilleureCarte != null) {
             perdant.getCarteList().remove(meilleureCarte);
+
             gagnant.getCarteList().add(meilleureCarte);
             meilleureCarte.setDresseur(gagnant);
 
@@ -206,9 +181,11 @@ public class ICombatService {
             System.out.println("\n📜 " + perdant.getPrenom() + " donne sa meilleure carte (" + meilleureCarte.getPokemon().getNom() + ") à " + gagnant.getPrenom() + " !");
         }
     }
+
     private int calculerDegats(Pokemon attaquant, double efficacite) {
         int baseDamage = random.nextInt(20) + 10;
         return (int) (baseDamage * efficacite);
     }
+
 
 }
