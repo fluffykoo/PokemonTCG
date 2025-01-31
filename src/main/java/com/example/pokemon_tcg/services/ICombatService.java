@@ -60,6 +60,7 @@ public class ICombatService {
 
         afficherDeck(dresseur1);
         afficherDeck(dresseur2);
+        proposerEchange(scanner, dresseur1, dresseur2);
     }
 
     private void afficherDeck(Dresseur dresseur) {
@@ -98,6 +99,33 @@ public class ICombatService {
                 System.out.println("❌ Choix invalide. Aucun Pokémon soigné.");
             }
         }
+    }
+    private void proposerEchange(Scanner scanner, Dresseur dresseur1, Dresseur dresseur2) {
+        System.out.println("\n🔄 Voulez-vous échanger une carte ? (oui/non)");
+        String reponse = scanner.nextLine().trim().toLowerCase();
+        if (!reponse.equals("oui")) {
+            System.out.println("❌ Pas d'échange. Fin du combat !");
+            return;
+        }
+        System.out.println(dresseur1.getPrenom() + ", choisis une carte à échanger :");
+        Carte carteDresseur1 = choisirCarte(scanner, dresseur1);
+        System.out.println(dresseur2.getPrenom() + ", choisis une carte à échanger :");
+        Carte carteDresseur2 = choisirCarte(scanner, dresseur2);
+        effectuerEchange(dresseur1, dresseur2, carteDresseur1, carteDresseur2);
+    }
+
+    private void effectuerEchange(Dresseur dresseur1, Dresseur dresseur2, Carte carteDresseur1, Carte carteDresseur2) {
+        dresseur1.getCarteList().remove(carteDresseur1);
+        dresseur2.getCarteList().remove(carteDresseur2);
+        carteDresseur1.setDresseur(dresseur2);
+        carteDresseur2.setDresseur(dresseur1);
+        dresseur1.getCarteList().add(carteDresseur2);
+        dresseur2.getCarteList().add(carteDresseur1);
+        dresseurRepository.save(dresseur1);
+        dresseurRepository.save(dresseur2);
+        System.out.println("\n✅ Échange réussi : " + dresseur1.getPrenom() + " a échangé " + carteDresseur1.getPokemon().getNom() + " avec " + dresseur2.getPrenom() + " pour " + carteDresseur2.getPokemon().getNom());
+        afficherDeck(dresseur1);
+        afficherDeck(dresseur2);
     }
 
 
