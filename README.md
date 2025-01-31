@@ -29,8 +29,8 @@ ATTENTION UTILISER BATCH AVEC LA LISTE DE POKEMONS PUIS TESTER L'API
 - **Réponse** : 204 si la suppression est réussie, 404 si dresseur introuvable.
 
 ### `POST /dresseurs/{uuid}/claim`
-- **Description** : Réclamer des cartes pour un dresseur (max 5 cartes).
-- **Réponse** : 200 avec dresseur mis à jour ou 400 si le dresseur a déjà 5 cartes.
+- **Description** : Réclamer des cartes pour un dresseur (5 cartes par jour).
+- **Réponse** : 200 avec dresseur mis à jour ou 400 si le dresseur a déjà réclamé ses cartes.
 
 ### `POST /dresseurs/battle`
 - **Description** : Simuler un combat entre deux dresseurs en mode terminal. (BIEN REGARDER VOTRE TERMINAL AFIN DE CONTINUER LE COMBAT), Il y a aussi une proposition d'échange, une fois la requête postman faite, retourner sur le terminal ! :)
