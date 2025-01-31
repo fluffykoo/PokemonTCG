@@ -277,6 +277,7 @@ ATTENTION UTILISER BATCH AVEC LA LISTE DE POKEMONS PUIS TESTER L'API
         "attaque2": "Lance-Roc"
     }
 ]
+```
   ```
 - **Réponse** : Liste des pokémons créés.
 
